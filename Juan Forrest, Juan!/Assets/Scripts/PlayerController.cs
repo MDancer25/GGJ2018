@@ -5,38 +5,116 @@ using UnityEngine;
 public class PlayerController : MonoBehaviour {
 
 	private GameObject passport;
-	private GameObject target;
+	private LineRenderer lineRenderer;
+
 	public bool holdingPassport = false;
-	private Rigidbody rb;
+	public float moveSpeed = 0.5f;
+	public bool hasAcceleration = false;
+	public float firingElevationAngle = 70.0f;
+	public float timeBetweenPickUp = 1.0f;
+	public float minThrowVelocity = 5.0f;
+	public float maxThrowVelocity = 40.0f;
+
+
+	private Vector3 inputMovement;
+	private Vector3 forwardVector;
+	private float angle;
+	private float throwForce;
+	private float pressTime;
+	private bool canPickUp;
+	private float pickUpTime;
+
+
+	private string S_BUTTON = "joystick button 0";
+	private string THROW_BUTTON = "joystick button 1";
+	private string O_BUTTON = "joystick button 2";
+	private string T_BUTTON = "joystick button 3";
+
+
 
 	// Use this for initialization
 	void Start () {
 		passport = GameObject.Find ("/Passport");
-		rb = GetComponent<Rigidbody> ();
-		passport.GetComponent<Rigidbody> ().useGravity = false;
+		lineRenderer = GetComponent<LineRenderer> ();
+		inputMovement = new Vector3 (0, 0, 0);
+		angle = 0.0f;
+		throwForce = 10.0f;
+		pressTime = 0.0f;
+		canPickUp = true;
+		pickUpTime = 0.0f;
+		lineRenderer.enabled = false;
+		lineRenderer.startColor = Color.blue;
+		lineRenderer.endColor = Color.red;
 	}
 	
 	// Update is called once per frame
 	void Update () {
+		/*
 		var x = Input.GetAxis("Horizontal") * Time.deltaTime * 150.0f;
 		var z = Input.GetAxis("Vertical") * Time.deltaTime * 3.0f;
 
 		transform.Rotate(0, x, 0);
 		transform.Translate(0, 0, z);
-
-		if (Input.GetKeyDown ("space")) {
-			if (holdingPassport && passport != null) {
-				target = GameObject.Find ("/Floor/Target");
-				passport.GetComponent<Rigidbody> ().useGravity = true;
-				ThrowObject (target.transform.position, 10f, passport);   
-			}
-		}
-
-		/*
-		if (holdingPassport) {
-			passport.transform.position = transform.position + new Vector3(0,2,0);
-		}
 		*/
+
+		if (!canPickUp && Time.time - pickUpTime > timeBetweenPickUp)
+			canPickUp = true;
+
+		var horizontalAxis = Input.GetAxis ("Horizontal");
+		var verticalAxis = Input.GetAxis("Vertical");
+		inputMovement.Set (horizontalAxis, 0, verticalAxis);
+
+		if (hasAcceleration) {
+			print ("not yet implemented");			
+		} else {
+			transform.Translate (inputMovement * Time.deltaTime * moveSpeed, Space.World);
+		}
+
+		forwardVector = this.transform.forward;
+
+
+		if (new Vector3 (verticalAxis, 0, horizontalAxis).sqrMagnitude > 0.2) {
+			angle = Mathf.Atan2 (horizontalAxis, verticalAxis) * Mathf.Rad2Deg;
+		}
+		transform.rotation = Quaternion.Euler(new Vector3(0, angle, 0));
+
+		float rHor = Input.GetAxis("RightHorizontal");
+		float rVer = Input.GetAxis("RightVertical");
+
+		//print (rHor + ", " + rVer);
+
+		if (pressTime != 0) {
+			lineRenderer.enabled = true;
+			lineRenderer.SetPosition(1, new Vector3(0,0,  3 * (Time.time - pressTime)));
+		}
+
+
+
+
+		if (Input.GetKeyDown (THROW_BUTTON)) {
+			pressTime = Time.time;
+		}
+
+		if (Input.GetKeyUp (THROW_BUTTON)) {
+			float timeHeld = Time.time - pressTime;
+
+			if (holdingPassport && passport != null) {
+				//target = GameObject.Find ("/Floor/Target");
+				Vector3 target = this.transform.position + forwardVector;
+
+				passport.GetComponent<Rigidbody> ().useGravity = true;
+				ThrowObject (target, Mathf.Min(Mathf.Max(minThrowVelocity, throwForce * timeHeld), maxThrowVelocity), passport);   
+
+				passport.transform.parent = null;
+
+				holdingPassport = false;
+				lineRenderer.SetPosition (1, Vector3.zero);
+				lineRenderer.enabled = false;
+				pressTime = 0.0f;
+
+			}
+
+		}
 		
 	}
 
@@ -44,12 +122,11 @@ public class PlayerController : MonoBehaviour {
 		Vector3 direction = (targetLocation - transform.position).normalized;
 		float distance = Vector3.Distance(targetLocation, transform.position);
 
-		float firingElevationAngle = FiringElevationAngle(Physics.gravity.magnitude, distance, initialVelocity);
 		Vector3 elevation = Quaternion.AngleAxis(firingElevationAngle, transform.right) * transform.up;
 		float directionAngle = AngleBetweenAboutAxis(transform.forward, direction, transform.up);
 		Vector3 velocity = Quaternion.AngleAxis(directionAngle, transform.up) * elevation * initialVelocity;
 
-		// ballGameObject is object to be thrown
+		// ballis object to be thrown
 		ball.GetComponent<Rigidbody>().AddForce(velocity, ForceMode.VelocityChange);
 	}
 
@@ -58,19 +135,26 @@ public class PlayerController : MonoBehaviour {
 	public static float AngleBetweenAboutAxis(Vector3 v1, Vector3 v2, Vector3 n) {
 		return Mathf.Atan2(Vector3.Dot(n, Vector3.Cross(v1, v2)), Vector3.Dot(v1, v2)) * Mathf.Rad2Deg;
 	}
-
-	// Helper method to find angle of elevation (ballistic trajectory) required to reach distance with initialVelocity
-	// Does not take wind resistance into consideration.
-	private float FiringElevationAngle(float gravity, float distance, float initialVelocity) {
-		float angle = 0.5f * Mathf.Asin ((gravity * distance) / (initialVelocity * initialVelocity)) * Mathf.Rad2Deg;
-		return angle;
-	}
 		
 	void OnTriggerEnter(Collider other) {
 		if (other.gameObject.CompareTag ("Passport")) {
-			//other.gameObject.SetActive (false);
+
+			if (!canPickUp)
+				return;
+			canPickUp = false;
 			holdingPassport = true;
+
+
+			Rigidbody passportRB = passport.GetComponent<Rigidbody> ();
+			passportRB.useGravity = false;
+			passportRB.velocity = Vector3.zero;
+			passportRB.angularVelocity = Vector3.zero;
+
 			passport.transform.parent = this.transform;
+			passport.transform.position = this.transform.position + new Vector3(0,2,0);
+
+
+			pickUpTime = Time.time;
 		}
 		
 	}
