@@ -8,15 +8,17 @@ public class PlayerController : MonoBehaviour {
 	private GameObject target;
 	public bool holdingPassport = false;
 	private Rigidbody rb;
-
-	private float barrierDuration;
+    private bool stuckTrapped, slowTrapped, knockedBack;
+    private float knockBackSpeed;
 
 	// Use this for initialization
 	void Start () {
 		passport = GameObject.Find ("/Passport");
 		rb = GetComponent<Rigidbody> ();
-		barrierDuration = 1f;
-
+        stuckTrapped = false;
+        slowTrapped = false;
+        knockedBack = false;
+        knockBackSpeed = 5;
 	}
 	
 	// Update is called once per frame
@@ -25,9 +27,18 @@ public class PlayerController : MonoBehaviour {
 		var z = Input.GetAxis("Vertical") * Time.deltaTime * 3.0f;
 
 		transform.Rotate(0, x, 0);
-		transform.Translate(0, 0, z);
+        if (knockedBack)
+        {
+            transform.position -= transform.forward * Time.deltaTime*knockBackSpeed;
+        }
+        else if (slowTrapped)
+            transform.Translate(0, 0, z * 0.5f);
 
-		if (Input.GetKeyDown ("space")) {
+        else if (!stuckTrapped)
+            transform.Translate(0, 0, z);
+        
+
+        if (Input.GetKeyDown ("space")) {
 			if (holdingPassport && passport != null) {
 				target = GameObject.Find ("/Floor/Target");
 				passport.GetComponent<Rigidbody> ().useGravity = true;
@@ -78,24 +89,38 @@ public class PlayerController : MonoBehaviour {
 			passport.transform.parent = this.transform;
 			passport.transform.position = this.transform.position + new Vector3(0,2,0);
 		}
+        else if (other.gameObject.CompareTag("StuckTrap"))
+        {
+            if (other.GetComponent<StuckTrap>().reseted)
+            {
+                other.GetComponent<StuckTrap>().setBubblePosition(transform.position);
+                stuckTrapped = true;
+                Invoke("ResetTrapped", other.GetComponent<StuckTrap>().timeTrapped);
+            }
+        }
+        else if (other.gameObject.CompareTag("SlowTrap"))
+        {
+            slowTrapped = true;
+            Invoke("ResetTrapped", 3f);
+        }
+        else if (other.gameObject.CompareTag("Bomb"))
+        {
+            knockedBack = true;
+            other.transform.Find("Particles").transform.GetComponent<ParticleSystem>().Play();
+            Invoke("ResetKnocked", 1f);
+        }
 		
 	}
 
-	void OnCollisionEnter(Collision col){
-		string[] nameArray = col.transform.name.Split('_');
-		if (nameArray[0] == "Door" && holdingPassport)
-		{
-			int keyId = transform.Find ("Passport").GetComponent<Key> ().id;
-			if (col.transform.gameObject.GetComponent<Door> ().OpenDoor (keyId)) {
-				transform.GetComponent<Rigidbody> ().isKinematic = true;
-				StartCoroutine (turnOffKinematic ());
-			}
-		}
-	}
+    void ResetTrapped()
+    {
+        stuckTrapped = false;
+        slowTrapped = false;
+    }
 
-	IEnumerator turnOffKinematic(){
-		yield return new WaitForSeconds (barrierDuration);
-		transform.GetComponent<Rigidbody> ().isKinematic = false;
-	}
+    void ResetKnocked()
+    {
+        knockedBack = false;
+    }
 
 }

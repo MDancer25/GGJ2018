@@ -15,7 +15,7 @@ public class Door : MonoBehaviour {
 
 	// Use this for initialization
 	void Start () {
-        openDoor = true;
+        openDoor = false;
         closeDoor = false;
         maxDistance = 2.0f;
         minDistance = 0.2f;
@@ -68,6 +68,6 @@ public class Door : MonoBehaviour {
     {
         if(keyId == id)
             openDoor = true;
-		return (keyId == id);
+        return (keyId == id);
     }
 }
