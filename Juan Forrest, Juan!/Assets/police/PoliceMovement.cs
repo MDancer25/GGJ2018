@@ -9,17 +9,16 @@ public class PoliceMovement : MonoBehaviour {
 
 	[SerializeField] float stopDistance = 1;
 
+	public delegate  void OnCLoseToPlayer (GameObject closePlayer);	// new delegate type
+	public event OnCLoseToPlayer notifyCloseToPlayer;				// instantiate an observer set
+
 	PoliceController policeController;
 	AICharacterControl aiController;
-	//public GameObject currentTarget;
 
-
-	// Use this for initialization
 	void Start () 
 	{
 		aiController = GetComponent<AICharacterControl> ();
 		policeController = GetComponent<PoliceController> ();
-
 	}
 
 	void Update ()
@@ -32,12 +31,13 @@ public class PoliceMovement : MonoBehaviour {
 	//checks if it is too close to a player ->  attacks and eventually game over conditions?
 	private void CheckDistanceToTarget()
 	{
-		if (TooCloseToTheTarget()) //distance between police and the currently target player
-		{
+		if (TooCloseToTheTarget ()) { 	//distance between police and the currently target player
+			notifyCloseToPlayer (policeController.currentTarget);		//notify all observing classes that the player is close
 			aiController.SetTarget (this.transform);
-		}
-		else
+		} else 
+		{
 			aiController.SetTarget (policeController.currentTarget.transform);
+		}
 	}
 
 	private bool  TooCloseToTheTarget()
