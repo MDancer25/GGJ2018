@@ -8,14 +8,17 @@ public class Key : MonoBehaviour {
     Rigidbody body;
     public float speed;
     bool pickedUp;
+    bool canPassBarrier;
 
     private float timeToGoThrough;
+    private float durationBarrier;
 
 	// Use this for initialization
 	void Start () {
         body = GetComponent<Rigidbody>();
         pickedUp = true;
         timeToGoThrough = 1f;
+        durationBarrier = 1f;
     }
 
     // Update is called once per frame
@@ -27,15 +30,22 @@ public class Key : MonoBehaviour {
     void OnCollisionEnter(Collision col)
     {
         string[] nameArray = col.transform.name.Split('_');
-        /*if (nameArray[0] == "Door" && pickedUp)
+        if (nameArray[0] == "Door" && pickedUp)
         {
-            col.transform.gameObject.GetComponent<Door>().OpenDoor(id);
-        }*/
-        if(nameArray[0] == "Crate")
+            if(col.transform.gameObject.GetComponent<Door>().OpenDoor(id))
+                GetComponent<Rigidbody>().isKinematic = true;
+        }
+        else if(nameArray[0] == "Crate")
         {
             GetComponent<Rigidbody>().isKinematic = true;
             StartCoroutine(turnOffKinematic());
         }
+    }
+
+    IEnumerator turnOffBarrier()
+    {
+        yield return new WaitForSeconds(durationBarrier);
+        GetComponent<Rigidbody>().isKinematic = false;
     }
 
     IEnumerator turnOffKinematic()
