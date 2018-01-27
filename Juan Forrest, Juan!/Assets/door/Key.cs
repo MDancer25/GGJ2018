@@ -24,18 +24,18 @@ public class Key : MonoBehaviour {
     // Update is called once per frame
     void Update()
     {
-        body.MovePosition(transform.position + transform.forward * speed * Time.deltaTime);
+        //body.MovePosition(transform.position + transform.forward * speed * Time.deltaTime);
     }
 
     void OnCollisionEnter(Collision col)
     {
         string[] nameArray = col.transform.name.Split('_');
-        if (nameArray[0] == "Door" && pickedUp)
+        /*if (nameArray[0] == "Door" && pickedUp)
         {
             if(col.transform.gameObject.GetComponent<Door>().OpenDoor(id))
                 GetComponent<Rigidbody>().isKinematic = true;
         }
-        else if(nameArray[0] == "Crate")
+        else*/ if(nameArray[0] == "Crate")
         {
             GetComponent<Rigidbody>().isKinematic = true;
             StartCoroutine(turnOffKinematic());
