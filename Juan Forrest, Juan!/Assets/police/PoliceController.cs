@@ -6,19 +6,20 @@ using UnityEngine.Assertions;
 public class PoliceController : MonoBehaviour {
 
 	public bool followPassport;
-
 	public GameObject currentTarget;
-	GameObject[] listOfTargets;
 
+	GameObject[] listOfTargets;
 	int numberOfJuans;
 
 	// Use this for initialization
 	void Start () {
 		listOfTargets = GameObject.FindGameObjectsWithTag ("Player");
-		Assert.IsNotNull (listOfTargets);
 
-		ChooseTarget ();
+		Assert.IsNotNull (listOfTargets);
+		Assert.IsTrue (listOfTargets.Length != 0);
+
 		numberOfJuans = listOfTargets.Length;
+		ChooseTarget ();
 	}
 
 	// Update is called once per frame
@@ -32,5 +33,6 @@ public class PoliceController : MonoBehaviour {
 	{
 		int randIndex = Random.Range (0, numberOfJuans);
 		currentTarget = listOfTargets [randIndex];
+
 	}
 }

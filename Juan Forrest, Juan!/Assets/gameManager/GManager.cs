@@ -2,21 +2,25 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Assertions;
+using UnityEngine.SceneManagement;
 
 [RequireComponent(typeof(PoliceMovement))]
 public class GManager : MonoBehaviour {
 
-	PoliceMovement policeMovement;
+	PoliceMovement[] policeMovement;
 
 	//TODO only notifications of one cop will be sent
 	void Start ()
 	{
 		GameObject[] policeOfficers = GameObject.FindGameObjectsWithTag ("Police");
-		policeMovement = policeOfficers [0].GetComponent<PoliceMovement> (); 
+		policeMovement = new PoliceMovement[policeOfficers.Length];
 
-		Assert.IsNotNull (policeMovement);
-
-		policeMovement.notifyCloseToPlayer += policeCloseToPlayer; 
+		for (int i = 0; i < policeOfficers.Length; i++) 
+		{
+			policeMovement[i] = policeOfficers [i].GetComponent<PoliceMovement> ();
+			policeMovement[i].notifyCloseToPlayer += policeCloseToPlayer; 
+		}
+		Assert.IsNotNull (policeMovement); 
 	}
 	
 	// Update is called once per frame
@@ -24,8 +28,11 @@ public class GManager : MonoBehaviour {
 		
 	}
 
+	//what happens when the police is close to the player
 	void policeCloseToPlayer(GameObject closePlayer)
 	{
-		Debug.Log (closePlayer.name);
+		Scene currentScene = SceneManager.GetActiveScene ();
+		SceneManager.LoadScene (currentScene.name);
+		Debug.Log ("policeCloseToPlayer");
 	}
 }
