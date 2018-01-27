@@ -29,7 +29,11 @@ GameObject:
   - component: {fileID: 114602771600584220}
   m_Layer: 0
   m_Name: police
+<<<<<<< HEAD
   m_TagString: Police
+=======
+  m_TagString: Untagged
+>>>>>>> master
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
