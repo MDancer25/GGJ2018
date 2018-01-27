@@ -16,6 +16,7 @@ public class PlayerController : MonoBehaviour {
 	public float timeBetweenPickUp = 1.0f;
 	public float minThrowVelocity = 5.0f;
 	public float maxThrowVelocity = 40.0f;
+    public int playerNum;
 
 
 	private Vector3 inputMovement;
@@ -57,8 +58,8 @@ public class PlayerController : MonoBehaviour {
 	// Update is called once per frame
 	void Update () {
 
-		var horizontalAxis = Input.GetAxis ("Horizontal");
-		var verticalAxis = Input.GetAxis("Vertical");
+		var horizontalAxis = Input.GetAxis ("Horizontal"+playerNum);
+		var verticalAxis = Input.GetAxis("Vertical"+playerNum);
 
         if (knockedBack)
         {
