@@ -6,6 +6,8 @@ public class PlayerController : MonoBehaviour {
 
 	private GameObject passport;
 	private LineRenderer lineRenderer;
+	private Rigidbody passportRB;
+	private TrailRenderer passportTR;
 
 	public bool holdingPassport = false;
     private bool stuckTrapped, slowTrapped, knockedBack;
@@ -17,6 +19,7 @@ public class PlayerController : MonoBehaviour {
 	public float minThrowVelocity = 5.0f;
 	public float maxThrowVelocity = 40.0f;
     public int playerNum;
+	public bool canThrow = false;
 
 
 	private Vector3 inputMovement;
@@ -38,6 +41,8 @@ public class PlayerController : MonoBehaviour {
 	// Use this for initialization
 	void Start () {
 		passport = GameObject.Find ("/Passport");
+		passportRB = passport.GetComponent<Rigidbody> ();
+		passportTR = passport.GetComponent<TrailRenderer> ();
         stuckTrapped = false;
         slowTrapped = false;
         knockedBack = false;
@@ -49,9 +54,11 @@ public class PlayerController : MonoBehaviour {
 		pressTime = 0.0f;
 		canPickUp = true;
 		pickUpTime = 0.0f;
+
 		lineRenderer.enabled = false;
 		lineRenderer.startColor = Color.blue;
 		lineRenderer.endColor = Color.red;
+
 		barrierDuration = 1f;
 	}
 	
@@ -87,7 +94,7 @@ public class PlayerController : MonoBehaviour {
 		forwardVector = this.transform.forward;
 
 
-		if (new Vector3 (verticalAxis, 0, horizontalAxis).sqrMagnitude > 0.2) {
+		if (new Vector3 (verticalAxis, 0, horizontalAxis).sqrMagnitude > 0.2 && !stuckTrapped && !slowTrapped && !knockedBack) {
 			angle = Mathf.Atan2 (horizontalAxis, verticalAxis) * Mathf.Rad2Deg;
 		}
 		transform.rotation = Quaternion.Euler(new Vector3(0, angle, 0));
@@ -98,23 +105,31 @@ public class PlayerController : MonoBehaviour {
 		//print (rHor + ", " + rVer);
 
 		if (pressTime != 0.0f && holdingPassport) {
-			lineRenderer.enabled = true;
-			lineRenderer.SetPosition(1, new Vector3(0,0,  3 * (Time.time - pressTime)));
+			lineRenderer.SetPosition(1, new Vector3(0,0, 3 * (Time.time - pressTime)));
 		}
 
-
-
-
 		if (Input.GetKeyDown (THROW_BUTTON)) {
-			pressTime = Time.time;
+			if (holdingPassport) {
+				lineRenderer.SetPosition (1, Vector3.zero);
+				lineRenderer.enabled = true;
+				canThrow = true;
+				pressTime = Time.time;
+			}
 		}
 
 		if (Input.GetKeyUp (THROW_BUTTON)) {
 			float timeHeld = Time.time - pressTime;
 
-			if (holdingPassport && passport != null) {
-				//target = GameObject.Find ("/Floor/Target");
+			if (holdingPassport && passport != null && canThrow) {
+
+
+				//target = GameObject.Find ("/Floor/Target");\
 				Vector3 target = this.transform.position + forwardVector;
+				//passportRB.constraints = RigidbodyConstraints.None;
+
+				passportRB.isKinematic = false;
+
+
 
 				passport.GetComponent<Rigidbody> ().useGravity = true;
 				ThrowObject (target, Mathf.Min(Mathf.Max(minThrowVelocity, throwForce * timeHeld), maxThrowVelocity), passport);   
@@ -123,12 +138,17 @@ public class PlayerController : MonoBehaviour {
 
 				holdingPassport = false;
 				lineRenderer.SetPosition (1, Vector3.zero);
+
 				lineRenderer.enabled = false;
-				pressTime = 0.0f;
+				canThrow = false;
+
 
 			}
 
 		}
+
+		//if (holdingPassport)
+		//	passport.transform.position = this.transform.position + new Vector3 (2, 0, 0);
 
 			
 		
@@ -163,14 +183,15 @@ public class PlayerController : MonoBehaviour {
 			lineRenderer.SetPosition (1, Vector3.zero);
 
 
-			Rigidbody passportRB = passport.GetComponent<Rigidbody> ();
 			passportRB.useGravity = false;
 			passportRB.velocity = Vector3.zero;
 			passportRB.angularVelocity = Vector3.zero;
 
 			passport.transform.parent = this.transform;
-			passport.transform.position = this.transform.position + new Vector3 (0, 2, 0);
-
+			//passport.transform.position = this.transform.position + new Vector3 (-1.0f, 2.5f, 1.5f);
+			passport.transform.position = this.transform.position + 2f*this.transform.forward + new Vector3(0,2.5f,0);
+			//passportRB.constraints = RigidbodyConstraints.FreezeAll;
+			passportRB.isKinematic = true;
 
 			pickUpTime = Time.time;
 		}
