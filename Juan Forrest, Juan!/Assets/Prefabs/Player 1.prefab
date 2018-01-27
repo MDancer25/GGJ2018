@@ -1548,7 +1548,7 @@ Transform:
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1225833681512638}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 1.55, y: 0.05, z: -8.32}
+  m_LocalPosition: {x: -6.93, y: 0.05, z: -19.16}
   m_LocalScale: {x: 2, y: 2, z: 2}
   m_Children:
   - {fileID: 4895071837384038}
@@ -2617,6 +2617,7 @@ MonoBehaviour:
   timeBetweenPickUp: 1
   minThrowVelocity: 5
   maxThrowVelocity: 40
+  playerNum: 1
 --- !u!120 &120029659344794748
 LineRenderer:
   m_ObjectHideFlags: 1
