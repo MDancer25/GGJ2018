@@ -1,4 +1,4 @@
 sceneSetups:
-- path: Assets/Scenes/Cena do Pedro.unity
+- path: Assets/Scenes/fialho.unity
   isLoaded: 1
   isActive: 1
