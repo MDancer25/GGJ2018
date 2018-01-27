@@ -6,7 +6,7 @@ public class PlayerController : MonoBehaviour {
 
 	private GameObject passport;
 	private LineRenderer lineRenderer;
-
+    static Animator animator;
 	public bool holdingPassport = false;
     private bool stuckTrapped, slowTrapped, knockedBack;
     private float knockBackSpeed;
@@ -52,6 +52,7 @@ public class PlayerController : MonoBehaviour {
 		lineRenderer.startColor = Color.blue;
 		lineRenderer.endColor = Color.red;
 		barrierDuration = 1f;
+        animator = GetComponent<Animator>();
 	}
 	
 	// Update is called once per frame
@@ -88,7 +89,14 @@ public class PlayerController : MonoBehaviour {
 
 		if (new Vector3 (verticalAxis, 0, horizontalAxis).sqrMagnitude > 0.2) {
 			angle = Mathf.Atan2 (horizontalAxis, verticalAxis) * Mathf.Rad2Deg;
-		}
+            animator.SetBool("isRunning", true);
+            Debug.Log(animator.GetBool("isRunning"));	
+        }
+        else
+        {
+            animator.SetBool("isRunning", false);
+        }
+
 		transform.rotation = Quaternion.Euler(new Vector3(0, angle, 0));
 
 		float rHor = Input.GetAxis("RightHorizontal");
@@ -112,7 +120,8 @@ public class PlayerController : MonoBehaviour {
 			float timeHeld = Time.time - pressTime;
 
 			if (holdingPassport && passport != null) {
-				//target = GameObject.Find ("/Floor/Target");
+                //target = GameObject.Find ("/Floor/Target");
+                animator.SetTrigger("isThrowing");
 				Vector3 target = this.transform.position + forwardVector;
 
 				passport.GetComponent<Rigidbody> ().useGravity = true;
