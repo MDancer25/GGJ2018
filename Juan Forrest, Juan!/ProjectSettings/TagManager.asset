@@ -5,6 +5,12 @@ TagManager:
   serializedVersion: 2
   tags:
   - Passport
+  - SlowTrap
+  - Bomb
+  - Police
+  - StuckTrap
+  - WalkFaster
+  - ChargeFaster
   layers:
   - Default
   - TransparentFX

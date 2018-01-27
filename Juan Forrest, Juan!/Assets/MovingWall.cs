@@ -54,34 +54,12 @@ public class MovingWall : MonoBehaviour {
             left = true;
             reached = true;
         }
-        //if (canSwitch)
-        //{
-        //    if (transform.position == endPosition && left)
-        //    {
-        //        startTime = Time.time;
-        //        left = false;
-        //        reached = true;
-        //    }
-        //    else if (transform.position == initPosition && !left)
-        //    {
-        //        startTime = Time.time;
-        //        left = true;
-        //        reached = true;
-        //    }
-        //    //Invoke("ResetSwitch", 0.5f);
-        //    canSwitch = false;
-        //}
     }
 
     public void Switch()
     {
         startTime = Time.time;
         reached = false;
-    }
-
-    void ResetSwitch()
-    {
-        canSwitch = true;
     }
 
 }

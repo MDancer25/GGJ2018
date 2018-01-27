@@ -32,7 +32,6 @@ public class ManageMovingWall : MonoBehaviour {
                 string[] name = transform.GetChild(i).name.Split(' ');
                 if (name[0] == "Fence")
                 {
-                    Debug.Log("switch");
                     transform.GetChild(i).GetComponent<MovingWall>().Switch();
                 }
             }

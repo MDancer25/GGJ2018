@@ -16,18 +16,21 @@ public class PlayerController : MonoBehaviour {
 	public float timeBetweenPickUp = 1.0f;
 	public float minThrowVelocity = 5.0f;
 	public float maxThrowVelocity = 40.0f;
-
-
-	private Vector3 inputMovement;
+    public Transform particles;
+	
+        
+    private Vector3 inputMovement;
 	private Vector3 forwardVector;
 	private float angle;
 	private float throwForce;
 	private float pressTime;
 	private bool canPickUp;
 	private float pickUpTime;
-    private GameObject bomb;
+    private GameObject bomb, trap, powerUP;
+    private float powerUpSpeed;
 
-	private string S_BUTTON = "joystick button 0";
+
+    private string S_BUTTON = "joystick button 0";
 	private string THROW_BUTTON = "joystick button 1";
 	private string O_BUTTON = "joystick button 2";
 	private string T_BUTTON = "joystick button 3";
@@ -52,7 +55,10 @@ public class PlayerController : MonoBehaviour {
 		lineRenderer.startColor = Color.blue;
 		lineRenderer.endColor = Color.red;
 		barrierDuration = 1f;
-	}
+        particles = Instantiate(particles, transform.position, Quaternion.Euler(-90, 0, 0));
+
+        powerUpSpeed = 1f;
+    }
 	
 	// Update is called once per frame
 	void Update () {
@@ -109,7 +115,7 @@ public class PlayerController : MonoBehaviour {
 		}
 
 		if (Input.GetKeyUp (THROW_BUTTON)) {
-			float timeHeld = Time.time - pressTime;
+			float timeHeld = Time.time - pressTime * powerUpSpeed;
 
 			if (holdingPassport && passport != null) {
 				//target = GameObject.Find ("/Floor/Target");
@@ -152,27 +158,27 @@ public class PlayerController : MonoBehaviour {
 	}
 
 	void OnTriggerEnter(Collider other) {
-		if (other.gameObject.CompareTag ("Passport")) {
-            
-			if (!canPickUp)
-				return;
-			canPickUp = false;
-			holdingPassport = true;
+        if (other.gameObject.CompareTag("Passport"))
+        {
 
-			lineRenderer.SetPosition (1, Vector3.zero);
+            if (!canPickUp)
+                return;
+            canPickUp = false;
+            holdingPassport = true;
+
+            lineRenderer.SetPosition(1, Vector3.zero);
+
+            Rigidbody passportRB = passport.GetComponent<Rigidbody>();
+            passportRB.useGravity = false;
+            passportRB.velocity = Vector3.zero;
+            passportRB.angularVelocity = Vector3.zero;
+
+            passport.transform.parent = this.transform;
+            passport.transform.position = this.transform.position + new Vector3(0, 2, 0);
 
 
-			Rigidbody passportRB = passport.GetComponent<Rigidbody> ();
-			passportRB.useGravity = false;
-			passportRB.velocity = Vector3.zero;
-			passportRB.angularVelocity = Vector3.zero;
-
-			passport.transform.parent = this.transform;
-			passport.transform.position = this.transform.position + new Vector3 (0, 2, 0);
-
-
-			pickUpTime = Time.time;
-		}
+            pickUpTime = Time.time;
+        }
         else if (other.gameObject.CompareTag("StuckTrap"))
         {
             if (other.GetComponent<StuckTrap>().reseted)
@@ -185,6 +191,13 @@ public class PlayerController : MonoBehaviour {
         else if (other.gameObject.CompareTag("SlowTrap"))
         {
             slowTrapped = true;
+            var em = particles.GetComponent<ParticleSystem>().emission;
+            em.enabled = false;
+            particles.transform.position = transform.position;
+            var main = particles.GetComponent<ParticleSystem>().main;
+            main.startColor = Color.red;
+            em.enabled = true;
+            particles.transform.GetComponent<ParticleSystem>().Play();
             Invoke("ResetTrapped", 3f);
         }
         else if (other.gameObject.CompareTag("Bomb"))
@@ -193,22 +206,41 @@ public class PlayerController : MonoBehaviour {
             for (int i = 0; i < other.transform.childCount; i++)
             {
                 string[] nameArray = other.transform.GetChild(i).name.Split(' ');
-                Debug.Log(nameArray[0] + " " + i);
-                if(nameArray[0] == "Particles")
+                if (nameArray[0] == "Particles")
                     other.transform.GetChild(i).transform.GetComponent<ParticleSystem>().Play();
                 other.transform.GetComponent<MeshRenderer>().enabled = false;
             }
             bomb = other.gameObject;
             Invoke("ResetKnocked", 1f);
         }
+        else if (other.gameObject.CompareTag("WalkFaster"))
+        {
+            moveSpeed = 10f;
+            var em = particles.GetComponent<ParticleSystem>().emission;
+            em.enabled = false;
 
-		/*string[] nameArray = other.transform.name.Split('_');
-		if (nameArray[0] == "Door" && holdingPassport)
-		{
-			int keyId = transform.Find ("Passport").GetComponent<Key> ().id;
-			if(other.transform.gameObject.GetComponent<Door>().OpenDoor(keyId))
-				transform.Find ("Passport").GetComponent<Rigidbody>().isKinematic = true;
-		}*/
+            particles.transform.position = transform.position;
+
+            var main = particles.GetComponent<ParticleSystem>().main;
+            main.startColor = Color.blue;
+            em.enabled = true;
+            particles.transform.GetComponent<ParticleSystem>().Play();
+            Invoke("ResetSpeed", 3f);
+        }
+        else if (other.gameObject.CompareTag("ChargeFaster"))
+        {
+            powerUpSpeed = 5f;
+            var em = particles.GetComponent<ParticleSystem>().emission;
+            em.enabled = false;
+
+            particles.transform.position = transform.position;
+
+            var main = particles.GetComponent<ParticleSystem>().main;
+            main.startColor = Color.green;
+            em.enabled = true;
+            particles.transform.GetComponent<ParticleSystem>().Play();
+            Invoke("ResetSpeed",3f);
+        }
 		
 	}
 
@@ -225,6 +257,12 @@ public class PlayerController : MonoBehaviour {
 			}
         }
 	}
+
+    void ResetSpeed()
+    {
+        moveSpeed = 5f;
+        powerUpSpeed = 1f;
+    }
 
 	void ResetKinematic(){
 		GetComponent<Rigidbody> ().isKinematic = false;
