@@ -50,7 +50,7 @@ public class PoliceMovement : MonoBehaviour {
 		Gizmos.color = Color.blue;
 		Gizmos.DrawWireSphere (transform.position, stopDistance);
 
-		if(policeController.currentTarget != null)
-			Gizmos.DrawLine (transform.position, policeController.currentTarget.transform.position);
+		//if(policeController.currentTarget != null)
+			//Gizmos.DrawLine (transform.position, policeController.currentTarget.transform.position);
 	}
 }

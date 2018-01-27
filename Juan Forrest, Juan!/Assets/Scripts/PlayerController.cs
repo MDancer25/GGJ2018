@@ -25,7 +25,7 @@ public class PlayerController : MonoBehaviour {
 	private float pressTime;
 	private bool canPickUp;
 	private float pickUpTime;
-
+    private GameObject bomb;
 
 	private string S_BUTTON = "joystick button 0";
 	private string THROW_BUTTON = "joystick button 1";
@@ -153,7 +153,7 @@ public class PlayerController : MonoBehaviour {
 
 	void OnTriggerEnter(Collider other) {
 		if (other.gameObject.CompareTag ("Passport")) {
-
+            
 			if (!canPickUp)
 				return;
 			canPickUp = false;
@@ -190,7 +190,15 @@ public class PlayerController : MonoBehaviour {
         else if (other.gameObject.CompareTag("Bomb"))
         {
             knockedBack = true;
-            other.transform.Find("Particles").transform.GetComponent<ParticleSystem>().Play();
+            for (int i = 0; i < other.transform.childCount; i++)
+            {
+                string[] nameArray = other.transform.GetChild(i).name.Split(' ');
+                Debug.Log(nameArray[0] + " " + i);
+                if(nameArray[0] == "Particles")
+                    other.transform.GetChild(i).transform.GetComponent<ParticleSystem>().Play();
+                other.transform.GetComponent<MeshRenderer>().enabled = false;
+            }
+            bomb = other.gameObject;
             Invoke("ResetKnocked", 1f);
         }
 
@@ -232,6 +240,7 @@ public class PlayerController : MonoBehaviour {
     void ResetKnocked()
     {
         knockedBack = false;
+        bomb.GetComponent<MeshRenderer>().enabled = true;
     }
 
 }

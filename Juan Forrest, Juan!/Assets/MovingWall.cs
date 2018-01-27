@@ -12,11 +12,15 @@ public class MovingWall : MonoBehaviour {
     private float journeyLength;
     private bool left, canSwitch;
 
+    public int fenceId;
+    public bool reached;
+
     // Use this for initialization
     void Start ()
     {
         left = true;
         canSwitch = true;
+        reached = false;
         startTime = Time.time;
         initPosition = transform.position;
         endPosition = transform.parent.Find("EndMark").position;
@@ -27,36 +31,54 @@ public class MovingWall : MonoBehaviour {
 	void Update () {
         float distCovered = (Time.time - startTime) * speed;
         float fracJourney = distCovered / journeyLength;
-        if (left)
+        if (left && !reached)
         {
             transform.position = Vector3.Lerp(initPosition, endPosition, fracJourney);
-        }else
+        }else if(!left && !reached)
         {
             transform.position = Vector3.Lerp(endPosition, initPosition, fracJourney);
         }
-
         checkSideMoving();
     }
 
     private void checkSideMoving()
     {
-        if (canSwitch)
+
+        if (transform.position == endPosition && left)
         {
-            if (transform.position == endPosition && left)
-            {
-                startTime = Time.time;
-                left = false;
-            }
-            else if (transform.position == initPosition && !left)
-            {
-                startTime = Time.time;
-                left = true;
-            }
-            Invoke("ResetSwitch", 0.5f);
-            canSwitch = false;
+            left = false;
+            reached = true;
         }
+        else if (transform.position == initPosition && !left)
+        {
+            left = true;
+            reached = true;
+        }
+        //if (canSwitch)
+        //{
+        //    if (transform.position == endPosition && left)
+        //    {
+        //        startTime = Time.time;
+        //        left = false;
+        //        reached = true;
+        //    }
+        //    else if (transform.position == initPosition && !left)
+        //    {
+        //        startTime = Time.time;
+        //        left = true;
+        //        reached = true;
+        //    }
+        //    //Invoke("ResetSwitch", 0.5f);
+        //    canSwitch = false;
+        //}
     }
-    
+
+    public void Switch()
+    {
+        startTime = Time.time;
+        reached = false;
+    }
+
     void ResetSwitch()
     {
         canSwitch = true;
