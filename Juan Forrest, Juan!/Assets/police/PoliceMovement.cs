@@ -45,6 +45,15 @@ public class PoliceMovement : MonoBehaviour {
 		return Vector3.Distance (transform.position, policeController.currentTarget.transform.position) < stopDistance;
 	}
 
+	void OnTriggerEnter(Collider other)
+	{
+		if (other.gameObject.CompareTag ("Player") || other.gameObject.CompareTag("Passport"))
+		{
+			notifyCloseToPlayer(other.gameObject);
+		}
+
+	}
+
 	void OnDrawGizmos()
 	{
 		Gizmos.color = Color.blue;

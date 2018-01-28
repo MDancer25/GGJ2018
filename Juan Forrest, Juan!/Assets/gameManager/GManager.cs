@@ -31,8 +31,13 @@ public class GManager : MonoBehaviour {
 	//what happens when the police is close to the player
 	void policeCloseToPlayer(GameObject closePlayer)
 	{
+		Debug.Log ("you lost because " + closePlayer.name + " got caught");
+		Invoke ("RestartGame", 2.0f);
+	}
+
+	void RestartGame()
+	{
 		Scene currentScene = SceneManager.GetActiveScene ();
 		SceneManager.LoadScene (currentScene.name);
-		Debug.Log ("policeCloseToPlayer");
 	}
 }

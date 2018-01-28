@@ -508,6 +508,7 @@ GameObject:
   - component: {fileID: 114370932854007820}
   - component: {fileID: 114009285782543656}
   - component: {fileID: 114818075801036032}
+  - component: {fileID: 65107494143191616}
   m_Layer: 0
   m_Name: AIPolice
   m_TagString: Police
@@ -1814,7 +1815,7 @@ Transform:
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1412376490820006}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -14.82, y: 0.3, z: -14.91}
+  m_LocalPosition: {x: -3.4710846, y: 0, z: -9.120102}
   m_LocalScale: {x: 2, y: 2, z: 2}
   m_Children:
   - {fileID: 4014473173523708}
@@ -2375,6 +2376,18 @@ Rigidbody:
   m_Interpolate: 0
   m_Constraints: 0
   m_CollisionDetection: 0
+--- !u!65 &65107494143191616
+BoxCollider:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1412376490820006}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 1
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Size: {x: 1.06, y: 2.38, z: 1.24}
+  m_Center: {x: 0, y: 0.5, z: 0}
 --- !u!95 &95799072693053096
 Animator:
   serializedVersion: 3
@@ -2403,7 +2416,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f508205bfb03d54498a953255604869b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  stopDistance: 1
+  stopDistance: 2
 --- !u!114 &114303980174542328
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -2784,7 +2797,7 @@ NavMeshAgent:
   m_Enabled: 1
   m_AgentTypeID: 0
   m_Radius: 0.5
-  m_Speed: 3.5
+  m_Speed: 0
   m_Acceleration: 8
   avoidancePriority: 50
   m_AngularSpeed: 120

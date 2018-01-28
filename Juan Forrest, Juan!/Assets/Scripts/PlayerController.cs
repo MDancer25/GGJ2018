@@ -32,12 +32,15 @@ public class PlayerController : MonoBehaviour {
 	private float pickUpTime;
 
 
-	private string S_BUTTON = "joystick button 0";
-	private string THROW_BUTTON = "joystick button 1";
-	private string O_BUTTON = "joystick button 2";
-	private string T_BUTTON = "joystick button 3";
+	private string S_BUTTON;
+	private string THROW_BUTTON;
+	private string O_BUTTON ;
+	private string T_BUTTON;
 
 	private float barrierDuration;
+
+	public delegate void OnPlayerPickPassport (GameObject player);	// new delegate
+	public static event OnPlayerPickPassport notifyPlayerPickedPassport;	// observer
 
 	// Use this for initialization
 	void Start () {
@@ -55,10 +58,14 @@ public class PlayerController : MonoBehaviour {
 		pressTime = 0.0f;
 		canPickUp = true;
 		pickUpTime = 0.0f;
-
 		lineRenderer.enabled = false;
 		lineRenderer.startColor = Color.blue;
 		lineRenderer.endColor = Color.red;
+
+		S_BUTTON = "joystick " + playerNum + " button 0";
+		THROW_BUTTON = "joystick " + playerNum + " button 1";
+		O_BUTTON = "joystick " + playerNum + " button 2";
+		T_BUTTON = "joystick " + playerNum + " button 3";
 
 		barrierDuration = 1f;
         animator = GetComponent<Animator>();
@@ -133,7 +140,7 @@ public class PlayerController : MonoBehaviour {
             {
                     animator.SetTrigger("isThrowing");
 
-
+					notifyPlayerPickedPassport(passport);
                     //target = GameObject.Find ("/Floor/Target");\
                     Vector3 target = this.transform.position + forwardVector;
 				//passportRB.constraints = RigidbodyConstraints.None;
@@ -185,7 +192,7 @@ public class PlayerController : MonoBehaviour {
 
 	void OnTriggerEnter(Collider other) {
 		if (other.gameObject.CompareTag ("Passport")) {
-
+			Debug.Log (this.gameObject.name);
 			if (!canPickUp)
 				return;
 			canPickUp = false;
@@ -205,6 +212,8 @@ public class PlayerController : MonoBehaviour {
 			passportRB.isKinematic = true;
 
 			pickUpTime = Time.time;
+
+			notifyPlayerPickedPassport(this.gameObject);
 		}
         else if (other.gameObject.CompareTag("StuckTrap"))
         {
