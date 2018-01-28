@@ -14,7 +14,7 @@ public class PoliceMovement : MonoBehaviour {
 
     static Animator animator;
     PoliceController policeController;
-	AICharacterControl aiController;
+	public AICharacterControl aiController;
 
     void Awake()
     {

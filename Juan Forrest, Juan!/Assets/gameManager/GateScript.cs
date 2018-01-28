@@ -6,15 +6,15 @@ public class GateScript : MonoBehaviour {
 
     // Use this for initialization
     GameObject[] players;
-    bool[] terms = new bool[3];
+    bool[] finished = new bool[3];
     public bool levelpassed = false;
 
     void Awake()
     {
         players = GameObject.FindGameObjectsWithTag("Player");
-        terms[0] = false;
-        terms[1] = false;
-        terms[2] = false;
+        finished[0] = false;
+        finished[1] = false;
+        finished[2] = false;
     }
 
     void Start () {
@@ -23,23 +23,30 @@ public class GateScript : MonoBehaviour {
 
     // Update is called once per frame
     void Update() {
-        for (int i = 0; i < players.Length; i++) {
-            if (Vector3.Distance(transform.position, players[i].transform.position) < 2f) {
-                terms[i] = true;
-                Debug.Log(i);
-            }
-        }
-        if(terms[0] && terms[1] && terms[2])
+        if(finished[0] && finished[1] && finished[2])
         {
             levelpassed = true;
+            Debug.Log("leveldone");
         }
 	}
 
     public void resetGate()
     {
-        terms[0] = false;
-        terms[1] = false;
-        terms[2] = false;
+        finished[0] = false;
+        finished[1] = false;
+        finished[2] = false;
         levelpassed = false;
+    }
+
+    void OnTriggerEnter(Collider other)
+    {
+        for (int i = 0; i < players.Length; i++)
+        {
+            if (other.gameObject.name == "Player " + (i+1))
+            {
+                finished[i] = true;
+                Debug.Log(i);
+            }
+        }
     }
 }
