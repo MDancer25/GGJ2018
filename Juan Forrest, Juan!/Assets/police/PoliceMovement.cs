@@ -10,12 +10,18 @@ public class PoliceMovement : MonoBehaviour {
 	[SerializeField] float stopDistance = 1;
 
 	public delegate  void OnCLoseToPlayer (GameObject closePlayer);	// new delegate type
-	public event OnCLoseToPlayer notifyCloseToPlayer;				// instantiate an observer set
+	public event OnCLoseToPlayer notifyCloseToPlayer;               // instantiate an observer set
 
-	PoliceController policeController;
+    static Animator animator;
+    PoliceController policeController;
 	AICharacterControl aiController;
 
-	void Start () 
+    void Awake()
+    {
+        animator = GetComponent<Animator>();
+    }
+
+    void Start () 
 	{
 		aiController = GetComponent<AICharacterControl> ();
 		policeController = GetComponent<PoliceController> ();
@@ -34,6 +40,7 @@ public class PoliceMovement : MonoBehaviour {
 		if (TooCloseToTheTarget ()) { 	//distance between police and the currently target player
 			notifyCloseToPlayer (policeController.currentTarget);		//notify all observing classes that the player is close
 			aiController.SetTarget (this.transform);
+            animator.SetTrigger("isNearPlayer");
 		} else 
 		{
 			aiController.SetTarget (policeController.currentTarget.transform);
